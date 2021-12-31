@@ -1,4 +1,5 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { CoreOutput } from 'src/common/dtos/output.dto';
 import { Podcast } from '../entites/podcast.entity';
 
 @InputType()
@@ -8,7 +9,7 @@ export class PodcastInput {
 }
 
 @ObjectType()
-export class PodcastOutput {
-  @Field((type) => Podcast)
-  results?: Podcast;
+export class PodcastOutput extends CoreOutput {
+  @Field((type) => Podcast, { nullable: true })
+  podcast?: Podcast;
 }

@@ -1,8 +1,12 @@
 import { Module } from '@nestjs/common';
-import { PodcastsResolver } from './podcasts.resolver';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Episode } from './entites/episode.entity';
+import { Podcast } from './entites/podcast.entity';
+import { EpisodeResolver, PodcastsResolver } from './podcasts.resolver';
 import { PodcastsService } from './podcasts.service';
 
 @Module({
-  providers: [PodcastsResolver, PodcastsService],
+  imports: [TypeOrmModule.forFeature([Podcast, Episode])],
+  providers: [PodcastsResolver, EpisodeResolver, PodcastsService],
 })
 export class PodcastsModule {}
