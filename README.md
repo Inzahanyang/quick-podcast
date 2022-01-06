@@ -1,73 +1,27 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+### Login
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ npm install
-```
-
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+- 이번에는 유저 인증과 유저 CRUD를 할 차례입니다.
+- 이번 챌린지 과정에서는 호스트(Host) 역할의 유저는 Podcast를 만들어서 Episode를 업로드하고,
+- 리스너(Listener) 유저들이 팟캐스트를 구독하여 에피소드를 들을 수 있는,
+- Podcast Discovery Application을 만들게 됩니다.
+- 이번 미션은users module with entities, services and resolvers 를 만드는 것 입니다.
+- 유저 인증의 조건은 아래와 같습니다.
+- 패스워드는 반드시 bcrypt를 이용하여 hash화 시켜야 합니다.
+- Users should be able to login with a password.
+- There should be onlyoneuser entity
+- but your entity should support two roles 'Host' and 'Listener'.
+- Create Guards to protect private resolvers.
+- Use JWT as authentication method.
+- Create a decorator to get the logged in user.
+- createAccount
+- login
+- editProfile
+- seeProfile
+- 만들어야 하는 모듈은 총 세 개가 될 수도 있습니다. jwt, users, auth.
+- Podcast의 모듈을 참고하여 User 모듈에 resolver, service, entity, DTO 등을 구현하시면 됩니다.
+- JwtModule
+- Role Base는 유저 정보는 DB에만 구현하시면 됩니다. Role 기반 권한부여는 추후 과제로 나옵니다.
+- EditProfile에서 패스워드를 변경할 경우 꼭 다시 hashing을 해야 합니다.
+- @BeforeInsert, @BeforeUpdate 데코레이터를 참고해서 이용합니다.
+- NestJS의 guards에 대해 알고 계셔야 합니다.
+- request의 header에서 token을 받는 방법과 graqph의 context에 user 정보를 넘겨주는 방법을 알고 계셔야 합니다.
