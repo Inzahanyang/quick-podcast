@@ -67,7 +67,7 @@ export class PodcastsService {
       if (!podcast) {
         return {
           ok: false,
-          error: 'Threr is no podcast by the Id',
+          error: 'There is no podcast by the Id',
         };
       }
 
@@ -85,15 +85,16 @@ export class PodcastsService {
 
   async deletePodcast(id: number): Promise<DeletePodcastOutput> {
     try {
-      const { podcast } = await this.getPodcast(id);
+      const podcast = await this.podcasts.findOne({ id });
       if (!podcast) {
         return {
           ok: false,
-          error: 'Threr is no podcast by the Id',
+          error: 'There is no podcast by the Id',
         };
       }
 
       this.podcasts.delete({ id });
+
       return { ok: true };
     } catch {
       return {
@@ -108,11 +109,11 @@ export class PodcastsService {
     ...rest
   }: UpdatePodcastInput): Promise<UpdatePodcastOutput> {
     try {
-      const { podcast } = await this.getPodcast(podcastId);
+      const podcast = await this.podcasts.findOne(podcastId);
       if (!podcast) {
         return {
           ok: false,
-          error: 'Threr is no podcast by the Id',
+          error: 'There is no podcast by the Id',
         };
       }
 
@@ -146,6 +147,7 @@ export class PodcastsService {
           error: "Can't find podcast by Id",
         };
       }
+
       return {
         ok: true,
         episodes: podcast.episodes,
@@ -163,16 +165,20 @@ export class PodcastsService {
     title,
   }: CreateEpisodeInput): Promise<CreateEpisodeOutput> {
     try {
-      const newEpisode = this.episodes.create({ title });
-      const { podcast } = await this.getPodcast(podcastId);
+      const podcast = await this.podcasts.findOne(podcastId);
       if (!podcast) {
         return {
           ok: false,
           error: "Can't find podcast by Id",
         };
       }
+
+      const newEpisode = this.episodes.create({ title });
+
       newEpisode.podcast = podcast;
+
       const { id } = await this.episodes.save(newEpisode);
+
       return {
         ok: true,
         id,

@@ -25,6 +25,7 @@ export class UsersService {
   }: CreateAccountInput): Promise<CreateAccountOutput> {
     try {
       const exist = await this.users.findOne({ email });
+
       if (exist) {
         return {
           ok: false,
@@ -32,6 +33,7 @@ export class UsersService {
         };
       }
       await this.users.save(this.users.create({ email, password, role }));
+
       return {
         ok: true,
       };
@@ -45,7 +47,10 @@ export class UsersService {
 
   async login({ email, password }: LoginInput): Promise<LoginOutput> {
     try {
-      const user = await this.users.findOne({ email });
+      const user = await this.users.findOne(
+        { email },
+        { select: ['id', 'password'] },
+      );
 
       if (!user) {
         return {
@@ -103,14 +108,6 @@ export class UsersService {
     { email, password }: EditProfileInput,
   ): Promise<EditProfileOutput> {
     try {
-      const emailExist = await this.users.findOne({ email });
-      if (emailExist) {
-        return {
-          ok: false,
-          error: 'Email already taken',
-        };
-      }
-
       const user = await this.users.findOne(id);
       if (!user) {
         return {
@@ -118,6 +115,7 @@ export class UsersService {
           error: 'User not found',
         };
       }
+
       if (email) {
         user.email = email;
       }
