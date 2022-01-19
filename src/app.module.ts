@@ -10,7 +10,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Episode } from './podcasts/entites/episode.entity';
 import { Podcast } from './podcasts/entites/podcast.entity';
 import { PodcastsModule } from './podcasts/podcasts.module';
-import { CommonModule } from './common/common.module';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { ConfigModule } from '@nestjs/config';
@@ -35,19 +34,13 @@ import { AuthModule } from './auth/auth.module';
     }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database:
-        process.env.NODE_ENV === 'test'
-          ? 'db.sqlitetest'
-          : process.env.NODE_ENV === 'dev'
-          ? 'db.sqlite'
-          : 'dbMain',
+      database: process.env.NODE_ENV === 'dev' ? 'db.sqlite' : 'db.sqlitetest',
       logging: false,
       synchronize: true,
       entities: [Podcast, Episode, User],
     }),
     JwtModule.forRoot({
-      privateKey:
-        process.env.NODE_ENV === 'test' ? 'testKey' : 'e@4$qjM"9)5`h190?^"#',
+      privateKey: process.env.PRIVATE_KEY || 'e@4$qjM"9)5`h190?^"#',
     }),
     PodcastsModule,
     UsersModule,
