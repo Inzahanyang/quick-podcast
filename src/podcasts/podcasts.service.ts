@@ -241,7 +241,7 @@ export class PodcastsService {
       if (episode.podcastId !== podcastId) {
         return {
           ok: false,
-          error: "You can't delete this episode",
+          error: "You can't update this episode",
         };
       }
 

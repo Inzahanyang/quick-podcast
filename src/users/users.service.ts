@@ -84,7 +84,7 @@ export class UsersService {
 
   async findById(id: number): Promise<UserProfileOutput> {
     try {
-      const user = await this.users.findOne({ id });
+      const user = await this.users.findOne(id);
       if (!user) {
         return {
           ok: false,
@@ -119,11 +119,13 @@ export class UsersService {
       if (email) {
         user.email = email;
       }
+
       if (password) {
         user.password = password;
       }
 
       await this.users.save(user);
+
       return {
         ok: true,
       };

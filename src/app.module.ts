@@ -25,7 +25,7 @@ import { AuthModule } from './auth/auth.module';
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().valid('dev', 'prod').required(),
+        NODE_ENV: Joi.string().valid('dev', 'prod', 'test').required(),
         PRIVATE_KEY: Joi.string().required(),
       }),
     }),
@@ -35,13 +35,19 @@ import { AuthModule } from './auth/auth.module';
     }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: 'db.sqlite',
+      database:
+        process.env.NODE_ENV === 'test'
+          ? 'db.sqlitetest'
+          : process.env.NODE_ENV === 'dev'
+          ? 'db.sqlite'
+          : 'dbMain',
       logging: false,
       synchronize: true,
       entities: [Podcast, Episode, User],
     }),
     JwtModule.forRoot({
-      privateKey: process.env.PRIVATE_KEY || 'e@4$qjM"9)5`h190?^"#',
+      privateKey:
+        process.env.NODE_ENV === 'test' ? 'testKey' : 'e@4$qjM"9)5`h190?^"#',
     }),
     PodcastsModule,
     UsersModule,
