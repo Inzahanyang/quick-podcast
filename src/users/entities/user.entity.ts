@@ -5,9 +5,10 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
+import { Podcast } from 'src/podcasts/entites/podcast.entity';
 
 export enum UserRole {
   Host = 'Host',
@@ -31,6 +32,10 @@ export class User extends CoreEntity {
   @Field((type) => UserRole)
   @Column({ type: 'simple-enum', enum: UserRole })
   role: UserRole;
+
+  @Field((type) => [Podcast])
+  @OneToMany((type) => Podcast, (podcast) => podcast.user)
+  podcasts: Podcast[];
 
   @BeforeInsert()
   async hashPassword(): Promise<void> {

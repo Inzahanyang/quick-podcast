@@ -29,7 +29,11 @@ import {
   UpdateEpisodeInput,
   UpdateEpisodeOutput,
 } from './dtos/updateEpisode.dto';
+import { Role } from 'src/auth/role.decorator';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Resolver((of) => Podcast)
 export class PodcastsResolver {
   constructor(private readonly podcastsService: PodcastsService) {}
@@ -40,6 +44,7 @@ export class PodcastsResolver {
   }
 
   @Mutation((returns) => CreatePodcastOutput)
+  @Role(['Host'])
   createPodcast(
     @Args('input') createPodcastInput: CreatePodcastInput,
   ): Promise<CreatePodcastOutput> {
@@ -54,6 +59,7 @@ export class PodcastsResolver {
   }
 
   @Mutation((returns) => DeletePodcastOutput)
+  @Role(['Host'])
   deletePodcast(
     @Args('input') deletePodcastInput: DeletePodcastInput,
   ): Promise<DeletePodcastOutput> {
@@ -61,6 +67,7 @@ export class PodcastsResolver {
   }
 
   @Mutation((returns) => UpdatePodcastOutput)
+  @Role(['Host'])
   updatePodcast(
     @Args('input') updatePodcastInput: UpdatePodcastInput,
   ): Promise<UpdatePodcastOutput> {
@@ -78,6 +85,7 @@ export class EpisodeResolver {
   }
 
   @Mutation((returns) => CreateEpisodeOutput)
+  @Role(['Host'])
   createEpisode(
     @Args('input') createEpisodeInput: CreateEpisodeInput,
   ): Promise<CreateEpisodeOutput> {
@@ -85,6 +93,7 @@ export class EpisodeResolver {
   }
 
   @Mutation((returns) => DeleteEpisodeOutput)
+  @Role(['Host'])
   deleteEpisode(
     @Args('input') deleteEpisodeInput: DeleteEpisodeInput,
   ): Promise<DeleteEpisodeOutput> {
@@ -92,6 +101,7 @@ export class EpisodeResolver {
   }
 
   @Mutation((returns) => UpdateEpisodeOutput)
+  @Role(['Host'])
   updateEpisode(
     @Args('input') updateEpisodeInput: UpdateEpisodeInput,
   ): Promise<UpdateEpisodeOutput> {
