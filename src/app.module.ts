@@ -1,10 +1,5 @@
 import * as Joi from 'joi';
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Episode } from './podcasts/entites/episode.entity';
@@ -14,8 +9,9 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from './jwt/jwt.module';
-import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
+import { Review } from './podcasts/entites/review.entity';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -29,28 +25,29 @@ import { AuthModule } from './auth/auth.module';
       }),
     }),
     GraphQLModule.forRoot({
+      installSubscriptionHandlers: true,
       autoSchemaFile: true,
-      context: ({ req }) => ({ user: req['user'] }),
+      subscriptions: {
+        'subscriptions-transport-ws': {
+          onConnect: (connection: any) => ({ token: connection['x-jwt'] }),
+        },
+      },
+      context: ({ req }) => ({ token: req.headers['x-jwt'] }),
     }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: process.env.NODE_ENV === 'dev' ? 'db.sqlite' : 'db.sqlitetest',
       logging: false,
       synchronize: true,
-      entities: [Podcast, Episode, User],
+      entities: [Podcast, Episode, User, Review],
     }),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY || 'e@4$qjM"9)5`h190?^"#',
     }),
+    AuthModule,
     PodcastsModule,
     UsersModule,
-    AuthModule,
+    CommonModule,
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(JwtMiddleware)
-      .forRoutes({ path: '/graphql', method: RequestMethod.POST });
-  }
-}
+export class AppModule {}

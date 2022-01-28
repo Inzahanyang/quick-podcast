@@ -1,4 +1,4 @@
-import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
+import { Resolver, Query, Args, Mutation, Subscription } from '@nestjs/graphql';
 import {
   CreateEpisodeInput,
   CreateEpisodeOutput,
@@ -30,13 +30,29 @@ import {
   UpdateEpisodeOutput,
 } from './dtos/updateEpisode.dto';
 import { Role } from 'src/auth/role.decorator';
-import { UseGuards } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
+import {
+  SearchPodcastInput,
+  SearchPodcastOutput,
+} from './dtos/searchPodcast.dto';
+import { Review } from './entites/review.entity';
+import {
+  ReviewPodcastInput,
+  ReviewPodcastOutput,
+} from './dtos/reviewPodcast.dto';
+import { AuthUser } from 'src/auth/auth-user.decorator';
+import { User } from 'src/users/entities/user.entity';
+import { PubSub } from 'graphql-subscriptions';
+import { NEW_PODCAST_SUBSCRIPTION, PUB_SUB } from 'src/common/common.constants';
 
 @UseGuards(AuthGuard)
 @Resolver((of) => Podcast)
 export class PodcastsResolver {
-  constructor(private readonly podcastsService: PodcastsService) {}
+  constructor(
+    private readonly podcastsService: PodcastsService,
+    @Inject(PUB_SUB) private readonly pubSub: PubSub,
+  ) {}
 
   @Query((returns) => [Podcast])
   getAllPodcasts() {
@@ -46,9 +62,10 @@ export class PodcastsResolver {
   @Mutation((returns) => CreatePodcastOutput)
   @Role(['Host'])
   createPodcast(
+    @AuthUser() authUser: User,
     @Args('input') createPodcastInput: CreatePodcastInput,
   ): Promise<CreatePodcastOutput> {
-    return this.podcastsService.createPodcast(createPodcastInput);
+    return this.podcastsService.createPodcast(authUser, createPodcastInput);
   }
 
   @Query((returns) => PodcastOutput)
@@ -61,21 +78,44 @@ export class PodcastsResolver {
   @Mutation((returns) => DeletePodcastOutput)
   @Role(['Host'])
   deletePodcast(
+    @AuthUser() authUser: User,
     @Args('input') deletePodcastInput: DeletePodcastInput,
   ): Promise<DeletePodcastOutput> {
-    return this.podcastsService.deletePodcast(deletePodcastInput.podcastId);
+    return this.podcastsService.deletePodcast(
+      authUser,
+      deletePodcastInput.podcastId,
+    );
   }
 
   @Mutation((returns) => UpdatePodcastOutput)
   @Role(['Host'])
   updatePodcast(
+    @AuthUser() authUser: User,
     @Args('input') updatePodcastInput: UpdatePodcastInput,
   ): Promise<UpdatePodcastOutput> {
-    return this.podcastsService.updatePodcast(updatePodcastInput);
+    return this.podcastsService.updatePodcast(authUser, updatePodcastInput);
+  }
+
+  @Query((returns) => SearchPodcastOutput)
+  searchPodcast(
+    @Args('input') searchPodcastInput: SearchPodcastInput,
+  ): Promise<SearchPodcastOutput> {
+    return this.podcastsService.searchPodcasts(searchPodcastInput);
+  }
+
+  @Subscription((returns) => Podcast, {
+    filter: (payload, variables) => {
+      return payload.subscriptionPodcast.user.id === variables.input;
+    },
+    resolve: (payload) => payload.subscriptionPodcast,
+  })
+  @Role(['Listener'])
+  subscriptionPodcast(@Args('input') podcastId: number) {
+    return this.pubSub.asyncIterator(NEW_PODCAST_SUBSCRIPTION);
   }
 }
 
-@Resolver((returns) => Episode)
+@Resolver((of) => Episode)
 export class EpisodeResolver {
   constructor(private readonly podcastsService: PodcastsService) {}
 
@@ -106,5 +146,18 @@ export class EpisodeResolver {
     @Args('input') updateEpisodeInput: UpdateEpisodeInput,
   ): Promise<UpdateEpisodeOutput> {
     return this.podcastsService.updateEpisode(updateEpisodeInput);
+  }
+}
+
+@Resolver((of) => Review)
+export class ReviewResolver {
+  constructor(private readonly podcastsService: PodcastsService) {}
+
+  @Mutation((returns) => ReviewPodcastOutput)
+  reviewPodcast(
+    @AuthUser() user: User,
+    @Args('input') reviewPodcastInput: ReviewPodcastInput,
+  ): Promise<ReviewPodcastOutput> {
+    return this.podcastsService.reviewPodcast(user, reviewPodcastInput);
   }
 }
