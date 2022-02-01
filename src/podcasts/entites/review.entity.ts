@@ -13,10 +13,12 @@ export class Review extends CoreEntity {
   review: string;
 
   @Field((type) => Podcast)
-  @ManyToOne((type) => Podcast, (podcast) => podcast.reviews)
+  @ManyToOne((type) => Podcast, (podcast) => podcast.reviews, {
+    onDelete: 'CASCADE',
+  })
   podcast: Podcast;
 
   @Field((type) => User)
-  @ManyToOne((type) => User, (user) => user.reviews)
+  @ManyToOne((type) => User, (user) => user.reviews, { onDelete: 'CASCADE' })
   user: User;
 }

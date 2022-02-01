@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from 'src/jwt/jwt.service';
+import { Episode } from 'src/podcasts/entites/episode.entity';
+import { Podcast } from 'src/podcasts/entites/podcast.entity';
 import { Repository } from 'typeorm';
 import {
   CreateAccountInput,
@@ -8,6 +10,8 @@ import {
 } from './dtos/create-account.dto';
 import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
+import { MarkEpisodeAsPlayedInput } from './dtos/mark-episode-played.dto';
+import { ToggleSubscribeInput } from './dtos/subscribe.dto';
 import { UserProfileOutput } from './dtos/user-profile.dto';
 import { User } from './entities/user.entity';
 
@@ -15,6 +19,8 @@ import { User } from './entities/user.entity';
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
+    @InjectRepository(Podcast) private readonly podcasts: Repository<Podcast>,
+    @InjectRepository(Episode) private readonly episodes: Repository<Episode>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -133,6 +139,56 @@ export class UsersService {
       return {
         ok: false,
         error: 'Could not edit profile',
+      };
+    }
+  }
+
+  async toggleSubscribe(user: User, { podcastId }: ToggleSubscribeInput) {
+    try {
+      const podcast = await this.podcasts.findOne({ id: podcastId });
+      if (!podcast) {
+        return {
+          ok: false,
+          error: 'There is no podcast by the Id',
+        };
+      }
+      if (user.subscriptions.some((sub) => sub.id === podcast.id)) {
+        user.subscriptions = user.subscriptions.filter(
+          (sub) => sub.id !== podcast.id,
+        );
+      } else {
+        user.subscriptions = [...user.subscriptions, podcast];
+      }
+      await this.users.save(user);
+      return {
+        ok: true,
+      };
+    } catch {
+      return {
+        ok: false,
+        error: 'Could not toggle subscribe',
+      };
+    }
+  }
+
+  async markEpisodeAsPlayed(user: User, { id }: MarkEpisodeAsPlayedInput) {
+    try {
+      const episode = await this.episodes.findOne({ id });
+      if (!episode) {
+        return {
+          ok: false,
+          error: 'Episode not found',
+        };
+      }
+      user.playedEpisodes = [...user.playedEpisodes, episode];
+      await this.users.save(user);
+      return {
+        ok: true,
+      };
+    } catch {
+      return {
+        ok: false,
+        error: 'Could not mark episode as played',
       };
     }
   }

@@ -1,16 +1,23 @@
 import {
   Field,
   InputType,
-  Int,
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
 import { Podcast } from 'src/podcasts/entites/podcast.entity';
 import { Review } from 'src/podcasts/entites/review.entity';
+import { Episode } from 'src/podcasts/entites/episode.entity';
 
 export enum UserRole {
   Host = 'Host',
@@ -36,12 +43,22 @@ export class User extends CoreEntity {
   role: UserRole;
 
   @Field((type) => [Podcast])
-  @OneToMany((type) => Podcast, (podcast) => podcast.user)
+  @OneToMany((type) => Podcast, (podcast) => podcast.user, { eager: true })
   podcasts: Podcast[];
 
   @Field((type) => [Review])
-  @OneToMany((type) => Review, (review) => review.user)
+  @OneToMany((type) => Review, (review) => review.user, { eager: true })
   reviews: Review[];
+
+  @Field((type) => [Podcast])
+  @ManyToMany(() => Podcast, { eager: true })
+  @JoinTable()
+  subscriptions: Podcast[];
+
+  @Field((type) => [Episode])
+  @ManyToMany(() => Episode, { eager: true })
+  @JoinTable()
+  playedEpisodes: Episode[];
 
   @BeforeInsert()
   async hashPassword(): Promise<void> {
